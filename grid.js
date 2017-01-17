@@ -2,8 +2,11 @@
   const canvasEl = document.getElementById('canvas');
   const ctx = canvasEl.getContext('2d');
   const CELL_SIZE = 8;
-  const WIDTH = 120;
-  const HEIGHT = 100;
+  const WIDTH = 140;
+  const HEIGHT = 80;
+  const BLACK = '#111';
+  const WHITE = '#EEE';
+  const GRAY = '#888';
 
   class Cell {
     constructor(grid, r, c, alive = false) {
@@ -44,6 +47,24 @@
     toNext() {
       this.alive = this.aliveNext;
     }
+
+    render() {
+      ctx.fillStyle = this.alive ? BLACK : WHITE;
+      ctx.fillRect(
+        CELL_SIZE * this.c,
+        CELL_SIZE * this.r,
+        CELL_SIZE,
+        CELL_SIZE
+      );
+
+      ctx.strokeStyle = GRAY;
+      ctx.strokeRect(
+        CELL_SIZE * this.c,
+        CELL_SIZE * this.r,
+        CELL_SIZE,
+        CELL_SIZE
+      );
+    }
   }
 
   class Grid {
@@ -66,6 +87,7 @@
             .fill(true)
             .map((_, c) => new Cell(this, r, c));
         });
+      this.render();
     }
 
     cell(r, c) {
@@ -100,11 +122,56 @@
     tick() {
       this.forEach(cell => cell.setNext());
       this.forEach(cell => cell.toNext());
+      this.forEach(cell => cell.render());
     }
 
+    render() {
+      this.forEach(cell => cell.render());
+    }
+
+    getCellByPixel(x, y) {
+      const rowIndex = parseInt(y / CELL_SIZE);
+      const colIndex = parseInt(x / CELL_SIZE);
+      return this.cell(rowIndex, colIndex);
+    }
+  }
+
+  class Game {
+    constructor() {
+      this.grid = new Grid();
+      canvas.addEventListener('click', e => {
+        const cell = this.grid.getCellByPixel(e.offsetX, e.offsetY);
+        cell.alive = !cell.alive;
+        cell.render();
+      });
+      document
+        .getElementById('play')
+        .addEventListener('click', () => this.play());
+      document
+        .getElementById('pause')
+        .addEventListener('click', () => this.pause());
+      document
+        .getElementById('clear')
+        .addEventListener('click', () => this.grid.clearGrid());
+
+
+      this.grid.render();
+    }
+
+    play() {
+      this.interval = setInterval(() => {
+        this.grid.tick();
+      }, 150);
+    }
+
+    pause() {
+      clearInterval(this.interval);
+    }
 
   }
 
-  window.Life = window.Life || {};
-  window.Life.Grid = Grid;
+
+
+  window.game = new Game();
+
 })();

@@ -1,13 +1,20 @@
 #main {
-  display: flex;
   height: 100%;
   width: 100%;
-  align-items: center;
-  justify-content: center;
 }
 
 #canvas {
   margin-top: 10px;
-  width: 961px;
-  height: 801px;
+  margin-left: 10px;
+  display: block;
+  float: left;
+}
+
+#controls {
+  margin: 10px;
+  float: left;
+}
+
+.btn {
+  margin: 10px;
 }

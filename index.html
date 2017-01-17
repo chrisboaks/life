@@ -3,12 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>Conway's Game of Life</title>
+  <link rel="stylesheet" href="./reset.css">
+  <link rel="stylesheet" href="./index.css">
 </head>
 <body>
   <div id="main">
     <canvas id="canvas"></canvas>
+    <div id="controls">
+      <div>
+        <button id="play" class="btn">PLAY</button>
+      </div>
+      <div>
+        <button id="pause" class="btn">PAUSE</button>
+      </div>
+      <div>
+        <button id="clear" class="btn">CLEAR</button>
+      </div>
+    </div>
   </div>
 
   <script src="./grid.js"></script>
+
+  <script>
+    const grid = window.game.grid;
+    grid.cell(10, 11).alive = true;
+    grid.cell(10, 12).alive = true;
+    grid.cell(10, 13).alive = true;
+    grid.cell(9, 13).alive = true;
+    grid.cell(8, 12).alive = true;
+    grid.render();
+    // setInterval(function() {
+    //   grid.tick();
+    //   grid.render();
+    // }, 250);
+  </script>
 </body>
 </html>
