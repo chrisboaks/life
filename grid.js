@@ -87,7 +87,6 @@
             .fill(true)
             .map((_, c) => new Cell(this, r, c));
         });
-      this.render();
     }
 
     cell(r, c) {
@@ -139,20 +138,16 @@
   class Game {
     constructor() {
       this.grid = new Grid();
-      canvas.addEventListener('click', e => {
-        const cell = this.grid.getCellByPixel(e.offsetX, e.offsetY);
-        cell.alive = !cell.alive;
-        cell.render();
-      });
+      canvas.addEventListener('mousedown', handleClickCanvas);
       document
         .getElementById('play')
-        .addEventListener('click', () => this.play());
+        .addEventListener('click', handleClickPlay);
       document
         .getElementById('pause')
-        .addEventListener('click', () => this.pause());
+        .addEventListener('click', handleClickPause);
       document
         .getElementById('clear')
-        .addEventListener('click', () => this.grid.clearGrid());
+        .addEventListener('click', handleClickClear);
 
 
       this.grid.render();
@@ -168,10 +163,48 @@
       clearInterval(this.interval);
     }
 
+    clear() {
+      this.pause();
+      this.grid.clearGrid();
+    }
+
   }
 
-
-
   window.game = new Game();
+
+  function handleClickPlay() {
+    window.game.play();
+  }
+
+  function handleClickPause() {
+    window.game.pause();
+  }
+
+  function handleClickClear() {
+    window.game.pause();
+    window.game.grid.clearGrid();
+    window.game.grid.render();
+  }
+
+  function handleClickCanvas(e) {
+    const cell = window.game.grid.getCellByPixel(e.offsetX, e.offsetY);
+    const paintWithLife = !cell.alive;
+    cell.alive = !cell.alive;
+    cell.render();
+
+    canvas.addEventListener('mousemove', handleClickedDragCanvas);
+    document.addEventListener('mouseup', function () {
+      canvas.removeEventListener('mousemove', handleClickedDragCanvas);
+    })
+
+    function handleClickedDragCanvas(e) {
+      const draggedCell = window.game.grid.getCellByPixel(e.offsetX, e.offsetY);
+      if (draggedCell.alive !== paintWithLife) {
+        draggedCell.alive = paintWithLife;
+        draggedCell.render();
+      }
+    }
+
+  }
 
 })();
