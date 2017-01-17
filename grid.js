@@ -133,6 +133,18 @@
       const colIndex = parseInt(x / CELL_SIZE);
       return this.cell(rowIndex, colIndex);
     }
+
+    random(probability = 0.5) {
+      this.forEach(cell => {
+        const random = Math.random();
+        if (random >= probability) {
+          cell.alive = false;
+        } else {
+          cell.alive = true;
+        }
+      });
+     this.render();
+    }
   }
 
   class Game {
@@ -148,6 +160,9 @@
       document
         .getElementById('clear')
         .addEventListener('click', handleClickClear);
+      document
+        .getElementById('randomBtn')
+        .addEventListener('click', handleClickRandom);
 
 
       this.grid.render();
@@ -180,6 +195,18 @@
     window.game.pause();
   }
 
+  function handleClickRandom() {
+    const inputVal = parseInt(document.getElementById('randomPct').value);
+    let probability;
+    if (inputVal < 0 || inputVal > 100) {
+      probability = 0.5;
+    } else {
+      probability = inputVal / 100;
+    }
+
+    window.game.grid.random(probability);
+  }
+
   function handleClickClear() {
     window.game.pause();
     window.game.grid.clearGrid();
@@ -204,7 +231,6 @@
         draggedCell.render();
       }
     }
-
   }
 
 })();

@@ -15,6 +15,10 @@
   float: left;
 }
 
-.btn {
+.btn, .input {
   margin: 10px;
+}
+
+.input {
+  width: 40px;
 }
