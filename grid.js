@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const canvasEl = document.getElementById('canvas');
   const ctx = canvasEl.getContext('2d');
   const CELL_SIZE = 8;
@@ -21,26 +21,16 @@
       return this.grid.neighbors(this.r, this.c);
     }
 
-    get livingNeighbors() {
-      return this.neighbors
-        .filter(n => n.alive)
-        .length;
+    get nLivingNeighbors() {
+      return this.neighbors.filter((n) => n.alive).length;
     }
 
     setNext() {
-      const livingNeighbors = this.livingNeighbors;
+      const nLivingNeighbors = this.nLivingNeighbors;
       if (this.alive) {
-        if (livingNeighbors < 2 || livingNeighbors > 3) {
-          this.aliveNext = false;
-        } else {
-          this.aliveNext = true;
-        }
+        this.aliveNext = nLivingNeighbors === 2 || nLivingNeighbors === 3;
       } else {
-        if (livingNeighbors === 3) {
-          this.aliveNext = true;
-        } else {
-          this.aliveNext = false;
-        }
+        this.aliveNext = nLivingNeighbors === 3;
       }
     }
 
@@ -90,7 +80,7 @@
     }
 
     cell(r, c) {
-      if (r < 0 || c < 0 || r >= this.rows || c >= this.cols ) {
+      if (r < 0 || c < 0 || r >= this.rows || c >= this.cols) {
         return null;
       }
 
@@ -99,33 +89,31 @@
 
     neighbors(r, c) {
       return [
-        this.cell(r - 1, c    ),
+        this.cell(r - 1, c),
         this.cell(r - 1, c + 1),
-        this.cell(r    , c + 1),
+        this.cell(r, c + 1),
         this.cell(r + 1, c + 1),
-        this.cell(r + 1, c    ),
+        this.cell(r + 1, c),
         this.cell(r + 1, c - 1),
-        this.cell(r    , c - 1),
-        this.cell(r - 1, c - 1)
-      ].filter(cell => cell);
+        this.cell(r, c - 1),
+        this.cell(r - 1, c - 1),
+      ].filter((cell) => cell);
     }
 
     forEach(fn) {
-      this._cells.forEach(row => {
-        row.forEach(cell => {
-          fn(cell);
-        });
+      this._cells.forEach((row) => {
+        row.forEach(fn);
       });
     }
 
     tick() {
-      this.forEach(cell => cell.setNext());
-      this.forEach(cell => cell.toNext());
-      this.forEach(cell => cell.render());
+      this.forEach((cell) => cell.setNext());
+      this.forEach((cell) => cell.toNext());
+      this.forEach((cell) => cell.render());
     }
 
     render() {
-      this.forEach(cell => cell.render());
+      this.forEach((cell) => cell.render());
     }
 
     getCellByPixel(x, y) {
@@ -135,22 +123,18 @@
     }
 
     random(probability = 0.5) {
-      this.forEach(cell => {
+      this.forEach((cell) => {
         const random = Math.random();
-        if (random >= probability) {
-          cell.alive = false;
-        } else {
-          cell.alive = true;
-        }
+        cell.alive = random < probability;
       });
-     this.render();
+      this.render();
     }
   }
 
   class Game {
     constructor() {
       this.grid = new Grid();
-      canvas.addEventListener('mousedown', handleClickCanvas);
+      canvasEl.addEventListener('mousedown', handleClickCanvas);
       document
         .getElementById('play')
         .addEventListener('click', handleClickPlay);
@@ -164,14 +148,13 @@
         .getElementById('randomBtn')
         .addEventListener('click', handleClickRandom);
 
-
       this.grid.render();
     }
 
     play() {
       this.interval = setInterval(() => {
         this.grid.tick();
-      }, 150);
+      }, 30);
     }
 
     pause() {
@@ -182,17 +165,16 @@
       this.pause();
       this.grid.clearGrid();
     }
-
   }
 
   window.game = new Game();
 
   function handleClickPlay() {
-    window.game.play();
+    window.game?.play();
   }
 
   function handleClickPause() {
-    window.game.pause();
+    window.game?.pause();
   }
 
   function handleClickRandom() {
@@ -204,33 +186,35 @@
       probability = inputVal / 100;
     }
 
-    window.game.grid.random(probability);
+    window.game?.grid.random(probability);
   }
 
   function handleClickClear() {
-    window.game.pause();
-    window.game.grid.clearGrid();
-    window.game.grid.render();
+    window.game?.pause();
+    window.game?.grid.clearGrid();
+    window.game?.grid.render();
   }
 
   function handleClickCanvas(e) {
-    const cell = window.game.grid.getCellByPixel(e.offsetX, e.offsetY);
-    const paintWithLife = !cell.alive;
+    const cell = window.game?.grid.getCellByPixel(e.offsetX, e.offsetY);
+    const shouldLive = !cell.alive;
     cell.alive = !cell.alive;
     cell.render();
 
-    canvas.addEventListener('mousemove', handleClickedDragCanvas);
+    canvasEl.addEventListener('mousemove', handleClickedDragCanvas);
     document.addEventListener('mouseup', function () {
-      canvas.removeEventListener('mousemove', handleClickedDragCanvas);
-    })
+      canvasEl.removeEventListener('mousemove', handleClickedDragCanvas);
+    });
 
     function handleClickedDragCanvas(e) {
-      const draggedCell = window.game.grid.getCellByPixel(e.offsetX, e.offsetY);
-      if (draggedCell.alive !== paintWithLife) {
-        draggedCell.alive = paintWithLife;
+      const draggedCell = window.game?.grid.getCellByPixel(
+        e.offsetX,
+        e.offsetY
+      );
+      if (draggedCell.alive !== shouldLive) {
+        draggedCell.alive = shouldLive;
         draggedCell.render();
       }
     }
   }
-
 })();
